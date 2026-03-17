@@ -172,6 +172,6 @@ To build a complete automated data pipeline that:
 
 👨‍💻 AUTHOR
 
-Sailesh Kumar - 
+**Sailesh Kumar** - 
 Data Analytics Portfolio Project
 
