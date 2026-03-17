@@ -1,0 +1,87 @@
+Dataset found: /files/data/raw/Listings.csv
+Dataset loaded successfully.
+Shape of dataset: (279712, 33)
+
+Columns in dataset:
+['listing_id', 'name', 'host_id', 'host_since', 'host_location', 'host_response_time', 'host_response_rate', 'host_acceptance_rate', 'host_is_superhost', 'host_total_listings_count', 'host_has_profile_pic', 'host_identity_verified', 'neighbourhood', 'district', 'city', 'latitude', 'longitude', 'property_type', 'room_type', 'accommodates', 'bedrooms', 'amenities', 'price', 'minimum_nights', 'maximum_nights', 'review_scores_rating', 'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value', 'instant_bookable']
+
+Duplicate columns:
+Index([], dtype='str')
+
+Basic Cleaning Summary:
+Rows before removing duplicates: 279712
+Rows after removing duplicates:  279712
+Duplicate rows removed:          0
+Duplicate listing_id removed:  0
+
+Shape after cleaning: (279712, 33)
+
+Column type cleaning completed.
+
+Missing value handling completed.
+
+Price Outlier Handling:
+IQR upper bound used: 1075.00
+Rows before price filter: 279712
+Rows after price filter:  248278
+Rows removed:             31434
+
+Starting feature engineering...
+Feature engineering completed.
+
+maximum_nights validation:
+Values <= 0: 0
+Very high values (>3650): 48
+
+Post-cleaning quality check:
+Shape: (248278, 40)
+
+Remaining missing values:
+district                 211520
+name                        153
+host_since                  143
+host_experience_years       143
+dtype: int64
+
+Price summary:
+count    248278.000000
+mean        232.823150
+std         241.803881
+min           1.000000
+25%          70.000000
+50%         125.000000
+75%         300.000000
+max        1075.000000
+Name: price, dtype: float64
+
+Dataset Metadata Summary
+----------------------------------------
+Total rows: 248278
+Total columns: 40
+
+Column Data Types:
+float64           17
+str               12
+int64              6
+boolean            4
+datetime64[us]     1
+Name: count, dtype: int64
+
+Memory Usage:
+179.64 MB
+
+Feature Columns Added:
+- price_per_guest
+- price_per_bedroom
+- host_experience_years
+- host_type
+- luxury_flag
+- overall_avg_review_score
+- long_stay_flag
+
+Dataset metadata generated successfully.
+
+
+Processed dataset saved to:
+/files/data/processed/clean_listings.parquet
+/files/data/processed/clean_piplistings.csv

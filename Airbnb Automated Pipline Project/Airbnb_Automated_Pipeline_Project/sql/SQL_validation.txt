@@ -1,0 +1,189 @@
+=========================AIRBNB KPIS SQL VALIDATION=================================================
+
+SQL> --Total listings--
+SQL> SELECT COUNT(*) AS total_listings
+  2  FROM airbnb_listings;
+
+TOTAL_LISTINGS
+--------------
+        246412
+
+SQL> --Average price--
+SQL> SELECT ROUND(AVG(price), 2) AS avg_price
+  2  FROM airbnb_listings;
+
+ AVG_PRICE
+----------
+    230.64
+
+SQL> --Average review score--
+SQL> SELECT ROUND(AVG(overall_avg_review_score), 2) AS avg_review_score
+  2  FROM airbnb_listings;
+
+AVG_REVIEW_SCORE
+----------------
+           21.75
+
+SQL> --Host type distribution--
+SQL> SELECT
+  2      host_type,
+  3      COUNT(*) AS listing_count,
+  4      ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM airbnb_listings), 2) AS percentage
+  5  FROM airbnb_listings
+  6  GROUP BY host_type;
+
+HOST_TYPE                                          LISTING_COUNT PERCENTAGE
+-------------------------------------------------- ------------- ----------
+professional                                               61283      24.87
+individual                                                185129      75.13
+
+SQL> --Luxury vs standard listings--
+SQL> SELECT
+  2      luxury_flag,
+  3      COUNT(*) AS listing_count,
+  4      ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM airbnb_listings), 2) AS percentage
+  5  FROM airbnb_listings
+  6  GROUP BY luxury_flag;
+
+LUXURY_FLAG                                        LISTING_COUNT PERCENTAGE
+-------------------------------------------------- ------------- ----------
+Luxury                                                     58767      23.85
+Standard                                                  187645      76.15
+
+SQL> --Long stay vs short stay--
+SQL> SELECT
+  2      long_stay_flag,
+  3      COUNT(*) AS listing_count,
+  4      ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM airbnb_listings), 2) AS percentage
+  5  FROM airbnb_listings
+  6  GROUP BY long_stay_flag;
+
+LONG_STAY_FLAG                                     LISTING_COUNT PERCENTAGE
+-------------------------------------------------- ------------- ----------
+Short stay                                                194305      78.85
+Long stay                                                  52107      21.15
+
+SQL> --Average price by host type--
+SQL> SELECT
+  2      host_type,
+  3      ROUND(AVG(price), 2) AS avg_price
+  4  FROM airbnb_listings
+  5  GROUP BY host_type;
+
+HOST_TYPE                                           AVG_PRICE
+-------------------------------------------------- ----------
+professional                                           292.17
+individual                                             210.27
+
+SQL> --Average price by stay type--
+SQL> SELECT
+  2      long_stay_flag,
+  3      ROUND(AVG(price), 2) AS avg_price
+  4  FROM airbnb_listings
+  5  GROUP BY long_stay_flag;
+
+LONG_STAY_FLAG                                      AVG_PRICE
+-------------------------------------------------- ----------
+Short stay                                             238.88
+Long stay                                              199.91
+
+SQL> --Average price per guest by room type--
+SQL> SELECT
+  2      room_type,
+  3      ROUND(AVG(price_per_guest), 2) AS avg_price_per_guest
+  4  FROM airbnb_listings
+  5  GROUP BY room_type
+  6  ORDER BY avg_price_per_guest DESC;
+
+ROOM_TYPE
+----------------------------------------------------------------------------------------------------
+AVG_PRICE_PER_GUEST
+-------------------
+Hotel room
+             120.85
+
+Shared room
+             114.22
+
+Private room
+             109.16
+
+Entire place
+              78.18
+
+
+SQL> --Average price per bedroom--
+SQL> SELECT ROUND(AVG(price_per_bedroom), 2) AS avg_price_per_bedroom
+  2  FROM airbnb_listings;
+
+AVG_PRICE_PER_BEDROOM
+---------------------
+               184.97
+
+SQL> --Check duplicates--
+SQL> SELECT listing_id, COUNT(*) AS cnt
+  2  FROM airbnb_listings
+  3  GROUP BY listing_id
+  4  HAVING COUNT(*) > 1;
+
+no rows selected
+
+SQL> --Check nulls in major engineered columns--
+SQL> SELECT
+  2      SUM(CASE WHEN price_per_guest IS NULL THEN 1 ELSE 0 END) AS null_price_per_guest,
+  3      SUM(CASE WHEN price_per_bedroom IS NULL THEN 1 ELSE 0 END) AS null_price_per_bedroom,
+  4      SUM(CASE WHEN host_experience_years IS NULL THEN 1 ELSE 0 END) AS null_host_experience,
+  5      SUM(CASE WHEN overall_avg_review_score IS NULL THEN 1 ELSE 0 END) AS null_review_score
+  6  FROM airbnb_listings;
+
+NULL_PRICE_PER_GUEST NULL_PRICE_PER_BEDROOM NULL_HOST_EXPERIENCE NULL_REVIEW_SCORE
+-------------------- ---------------------- -------------------- -----------------
+                   0                      0                  143                 0
+
+SQL> --Check min and max price--
+SQL> SELECT
+  2      MIN(price) AS min_price,
+  3      MAX(price) AS max_price
+  4  FROM airbnb_listings;
+
+ MIN_PRICE  MAX_PRICE
+---------- ----------
+         1       1075
+
+SQL> --Price Efficiency Analysis--
+SQL> SELECT 
+  2      room_type,
+  3      ROUND(AVG(price),2) AS avg_price,
+  4      ROUND(AVG(accommodates),2) AS avg_capacity,
+  5      ROUND(AVG(price) / AVG(accommodates),2) AS price_per_person_score
+  6  FROM airbnb_listings
+  7  GROUP BY room_type
+  8  ORDER BY price_per_person_score ASC;
+
+ROOM_TYPE
+----------------------------------------------------------------------------------------------------
+ AVG_PRICE AVG_CAPACITY PRICE_PER_PERSON_SCORE
+---------- ------------ ----------------------
+Entire place
+    246.18         3.64                  67.54
+
+Shared room
+    185.83         2.67                  69.57
+
+Private room
+    200.12         2.08                   96.4
+
+Hotel room
+    274.44         2.65                 103.67
+
+### SQL Validation Summary
+
+The processed Airbnb dataset was loaded into Oracle using **SQL*Loader (.ctl)** for validation of pipeline outputs.
+During the loading process, **246,412 rows were successfully inserted**, while **1,866 rows were rejected due to data errors**.
+The primary reason for rejected rows was the **`amenities` column**, which contains long text strings with special characters and Unicode symbols. 
+These characters caused parsing issues during the SQL*Loader process because Oracle expects strict CSV formatting and 
+may fail when encountering complex text structures or encoding inconsistencies.
+Since the rejected rows represent **less than 1% of the total dataset**, the loaded data was still considered **valid and sufficient for SQL validation checks**.
+After loading, key metrics such as **row counts, average price, host distribution, and listing categories** were verified using SQL queries 
+to ensure the pipeline transformations were correctly applied.
+Therefore, despite minor row rejections caused by text encoding in the `amenities` field, the dataset successfully passed **SQL validation for analytical consistency.**

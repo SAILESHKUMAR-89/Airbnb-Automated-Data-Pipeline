@@ -1,0 +1,55 @@
+{
+  "name": "airbnb_pipline_automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        -160
+      ],
+      "id": "a7c0e7c5-9d5d-4229-8a45-e9fbbcf937d8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "command": "cd /files && python pipeline/clean_airbnb.py 2>&1 | tee /files/pipeline_log.txt\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -160
+      ],
+      "id": "52123a65-6860-4381-906a-82605aa90403",
+      "name": "Execute Command"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Execute Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "76996fbe-9584-4b90-8bb9-6f8dcd817715",
+  "meta": {
+    "instanceId": "7b9bf1b34fc28c825f5dcda47c973e25b578fc3a10f88e7661f3f591c763cdb2"
+  },
+  "id": "EHRucP8nsawtvMr0",
+  "tags": []
+}
